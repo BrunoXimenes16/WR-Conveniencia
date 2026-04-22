@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Cadastro</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a, #FFC107);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CAIXA */
+.container {
+    background: rgba(255, 255, 255, 0.97);
+    padding: 25px;
+    width: 360px;
+    border-radius: 15px;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* INPUTS */
+input {
+    width: 100%;
+    padding: 11px;
+    margin: 6px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+input:focus {
+    border-color: #FFC107;
+    outline: none;
+}
+
+/* BOTÃO */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: linear-gradient(45deg, #FFC107, #FF8F00);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    transform: scale(1.03);
+}
+
+/* VOLTAR */
+.voltar {
+    margin-top: 10px;
+    display: inline-block;
+    text-decoration: none;
+    color: #FFC107;
+    font-size: 14px;
+}
+
+/* MENSAGEM */
+.mensagem {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+.erro {
+    color: red;
+}
+.sucesso {
+    color: green;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h2>Cadastro</h2>
+
+    <form onsubmit="return validarCadastro()">
+        <input id="nome" placeholder="Nome completo" required>
+        <input id="cpf" placeholder="CPF" required>
+        <input id="telefone" placeholder="Telefone" required>
+        <input id="email" type="email" placeholder="E-mail" required>
+        <input id="endereco" placeholder="Endereço" required>
+        <input id="senha" type="password" placeholder="Senha" required>
+        <input id="confirmar" type="password" placeholder="Confirmar senha" required>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <div id="mensagem" class="mensagem"></div>
+
+    <a href="login.html" class="voltar">← Voltar para login</a>
+</div>
+
+<script>
+function validarCadastro() {
+    let senha = document.getElementById("senha").value;
+    let confirmar = document.getElementById("confirmar").value;
+    let msg = document.getElementById("mensagem");
+
+    if (senha !== confirmar) {
+        msg.innerHTML = "❌ As senhas não coincidem!";
+        msg.className = "mensagem erro";
+        return false;
+    }
+
+    msg.innerHTML = "✅ Cadastro realizado com sucesso!";
+    msg.className = "mensagem sucesso";
+
+    // Redireciona após 2 segundos
+    setTimeout(() => {
+        window.location.href = "produtos.html";
+    }, 2000);
+
+    return false; // impede envio real
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Carrinho</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg, #1a1a1a, #FFC107);
+    padding: 20px;
+    color: white;
+}
+
+h2 {
+    text-align: center;
+}
+
+/* ITEM */
+.item {
+    background: white;
+    color: black;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+}
+
+/* BOTÕES */
+button {
+    margin-top: 5px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.remover {
+    background: red;
+    color: white;
+}
+
+.qtd {
+    background: #FFC107;
+}
+
+/* FINALIZAR */
+.finalizar {
+    background: green;
+    color: white;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+/* BOTÃO VOLTAR MELHORADO */
+.voltar {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    background: white;
+    color: black;
+    padding: 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+}
+</style>
+
+</head>
+<body>
+
+<h2>Seu Carrinho</h2>
+
+<div id="lista"></div>
+
+<h3 id="total"></h3>
+
+<button class="finalizar" onclick="window.location.href='finalizar.html'">
+    Finalizar Compra
+</button>
+
+<a href="produtos.html" class="voltar">← Voltar para produtos</a>
+
+<script>
+let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+let lista = document.getElementById("lista");
+let total = 0;
+
+function render() {
+    lista.innerHTML = "";
+    total = 0;
+
+    carrinho.forEach((item, index) => {
+        let preco = Number(item.preco);
+        let qtd = Number(item.qtd);
+
+        let subtotal = preco * qtd;
+        total += subtotal;
+
+        lista.innerHTML += `
+        <div class="item">
+            <strong>${item.nome}</strong><br>
+            Preço: R$ ${preco.toFixed(2)}<br>
+            Quantidade: ${qtd}<br>
+            Subtotal: R$ ${subtotal.toFixed(2)}<br>
+
+            <button class="qtd" onclick="alterarQtd(${index}, 1)">+</button>
+            <button class="qtd" onclick="alterarQtd(${index}, -1)">-</button>
+            <button class="remover" onclick="remover(${index})">Remover</button>
+        </div>
+        `;
+    });
+
+    document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
+}
+
+function alterarQtd(index, valor) {
+    carrinho[index].qtd = Number(carrinho[index].qtd) + valor;
+
+    if (carrinho[index].qtd <= 0) {
+        carrinho.splice(index, 1);
+    }
+
+    localStorage.setItem("carrinho", JSON.stringify(carrinho));
+    render();
+}
+
+function remover(index) {
+    carrinho.splice(index, 1);
+    localStorage.setItem("carrinho", JSON.stringify(carrinho));
+    render();
+}
+
+function finalizar() {
+    if (carrinho.length === 0) {
+        alert("Carrinho vazio!");
+        return;
+    }
+
+    alert("Compra finalizada com sucesso!");
+    localStorage.removeItem("carrinho");
+    window.location.href = "produtos.html";
+}
+
+render();
+</script>
+
+</body>
+</html>

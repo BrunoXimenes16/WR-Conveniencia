@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Finalizar Pedido</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a, #FFC107);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CAIXA */
+.container {
+    background: white;
+    width: 350px;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 15px;
+}
+
+/* TOTAL */
+.total {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #FF8F00;
+}
+
+/* CAMPOS */
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* BOTÃO */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: linear-gradient(45deg, #FFC107, #FF8F00);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    transform: scale(1.03);
+}
+
+/* VOLTAR */
+.voltar {
+    display: block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #555;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h2>Finalizar Pedido</h2>
+
+    <div class="total" id="total"></div>
+
+    <input placeholder="Endereço de entrega" required>
+
+    <select id="pagamento">
+        <option value="">Escolha forma de pagamento</option>
+        <option>Pix na entrega</option>
+        <option>Dinheiro</option>
+        <option>Cartão na entrega</option>
+    </select>
+
+    <button onclick="finalizar()">Confirmar Pedido</button>
+
+    <a href="carrinho.html" class="voltar">← Voltar ao carrinho</a>
+</div>
+
+<script>
+let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+let total = 0;
+
+carrinho.forEach(item => {
+    total += item.preco * item.qtd;
+});
+
+document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
+
+function finalizar() {
+    let pagamento = document.getElementById("pagamento").value;
+
+    if (carrinho.length === 0) {
+        alert("Carrinho vazio!");
+        return;
+    }
+
+    if (pagamento === "") {
+        alert("Escolha uma forma de pagamento!");
+        return;
+    }
+
+    alert("Pedido confirmado! 🚚💨\nPagamento: " + pagamento);
+
+    localStorage.removeItem("carrinho");
+
+    window.location.href = "pedidos.html";
+}
+</script>
+
+</body>
+</html>
