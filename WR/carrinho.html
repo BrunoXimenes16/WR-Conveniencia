@@ -3,93 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <title>Carrinho</title>
-
-<style>
-body {
-    font-family: Arial;
-    background: linear-gradient(135deg, #1a1a1a, #FFC107);
-    padding: 20px;
-    color: white;
-}
-
-h2 {
-    text-align: center;
-}
-
-/* ITEM */
-.item {
-    background: white;
-    color: black;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 10px;
-}
-
-/* BOTÕES */
-button {
-    margin-top: 5px;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.remover {
-    background: red;
-    color: white;
-}
-
-.qtd {
-    background: #FFC107;
-}
-
-/* FINALIZAR */
-.finalizar {
-    background: green;
-    color: white;
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    margin-top: 15px;
-}
-
-/* BOTÃO VOLTAR MELHORADO */
-.voltar {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-    background: white;
-    color: black;
-    padding: 12px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-}
-</style>
-
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="img/logo-wr-aba.png">
 </head>
+
 <body>
 
-<h2>Seu Carrinho</h2>
+<div class="topo">
+    <div class="logo-area">
+        <img src="img/logo-wr.png" class="logo" alt="Logo WR">
+        <p id="usuarioNome" class="usuario-nome"></p>
+    </div>
 
-<div id="lista"></div>
+    <div class="botoes-topo">
+        <a href="produtos.html">🏠 Loja</a>
+        <a href="historico.html">📦 Meus Pedidos</a>
+        <a href="#" class="sair" onclick="sair()">Sair</a>
+    </div>
+</div>
 
-<h3 id="total"></h3>
+<div class="container">
 
-<button class="finalizar" onclick="window.location.href='finalizar.html'">
-    Finalizar Compra
-</button>
+    <h2>Seu Carrinho</h2>
 
-<a href="produtos.html" class="voltar">← Voltar para produtos</a>
+    <p class="subtitulo">
+        Confira seus produtos antes de finalizar o pedido 🛒
+    </p>
+
+    <div class="card-carrinho">
+
+        <div id="mensagem" class="mensagem"></div>
+
+        <div id="lista"></div>
+
+        <div class="resumo">
+            <h3>Resumo do Pedido</h3>
+
+            <div class="linha-resumo">
+                <span>Itens no carrinho:</span>
+                <strong id="qtdItens">0</strong>
+            </div>
+
+            <div class="linha-resumo">
+                <span>Subtotal:</span>
+                <strong id="subtotal">R$ 0,00</strong>
+            </div>
+
+            <div class="linha-resumo">
+                <span>Taxa de entrega:</span>
+                <strong id="taxaEntrega">R$ 0,00</strong>
+            </div>
+
+            <div class="linha-resumo total-final">
+                <span>Total com entrega:</span>
+                <strong id="totalFinal">R$ 0,00</strong>
+            </div>
+
+            <p id="aviso" class="aviso"></p>
+
+            <p class="obs">
+                Observação: o pedido mínimo de R$ 30,00 não inclui a taxa de entrega.
+            </p>
+
+            <button id="btnFinalizar" class="finalizar" onclick="irParaFinalizar()">
+                Finalizar Compra
+            </button>
+
+            <button class="limpar" onclick="limparCarrinho()">
+                Limpar Carrinho
+            </button>
+        </div>
+
+        <a href="produtos.html" class="voltar">
+            ← Voltar para produtos
+        </a>
+
+    </div>
+
+</div>
+
+<footer>
+    <h3>WR Conveniência</h3>
+
+    <p>
+        A WR Conveniência oferece bebidas geladas, produtos de qualidade
+        e o melhor atendimento da região. Trabalhamos com variedade,
+        praticidade e preços acessíveis para garantir a melhor experiência
+        aos nossos clientes.
+    </p>
+
+    <div class="direitos">
+        © 2026 WR Conveniência - Todos os direitos reservados.
+    </div>
+</footer>
 
 <script>
+function verificarLogin() {
+    let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+    if (!usuarioLogado) {
+        window.location.href = "login.html";
+        return null;
+    }
+
+    return usuarioLogado;
+}
+
+let usuarioLogado = verificarLogin();
+
+if (usuarioLogado) {
+    document.getElementById("usuarioNome").innerText =
+        "Olá, " + usuarioLogado.nome + " 👋";
+}
+
 let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
 let lista = document.getElementById("lista");
 let total = 0;
 
+const pedidoMinimo = 30;
+const taxaEntrega = 3;
+
+function mostrarMensagem(texto, tipo) {
+    let mensagem = document.getElementById("mensagem");
+
+    mensagem.innerHTML = texto;
+
+    if (tipo === "sucesso") {
+        mensagem.className = "mensagem sucesso-box";
+    } else {
+        mensagem.className = "mensagem erro-box";
+    }
+
+    setTimeout(() => {
+        mensagem.className = "mensagem";
+    }, 2500);
+}
+
 function render() {
     lista.innerHTML = "";
     total = 0;
+
+    let quantidadeItens = 0;
+
+    if (carrinho.length === 0) {
+        lista.innerHTML = `
+            <div class="vazio">
+                Seu carrinho está vazio.
+            </div>
+        `;
+    }
 
     carrinho.forEach((item, index) => {
         let preco = Number(item.preco);
@@ -97,22 +159,69 @@ function render() {
 
         let subtotal = preco * qtd;
         total += subtotal;
+        quantidadeItens += qtd;
 
         lista.innerHTML += `
         <div class="item">
-            <strong>${item.nome}</strong><br>
-            Preço: R$ ${preco.toFixed(2)}<br>
-            Quantidade: ${qtd}<br>
-            Subtotal: R$ ${subtotal.toFixed(2)}<br>
+            <div class="info">
+                <strong>${item.nome}</strong>
+                <p>Preço: R$ ${preco.toFixed(2)}</p>
+                <p>Subtotal: <strong>R$ ${subtotal.toFixed(2)}</strong></p>
+            </div>
 
-            <button class="qtd" onclick="alterarQtd(${index}, 1)">+</button>
-            <button class="qtd" onclick="alterarQtd(${index}, -1)">-</button>
-            <button class="remover" onclick="remover(${index})">Remover</button>
+            <div class="acoes">
+                <div class="controle-qtd">
+                    <button class="qtd" onclick="alterarQtd(${index}, -1)">-</button>
+                    <span class="numero-qtd">${qtd}</span>
+                    <button class="qtd" onclick="alterarQtd(${index}, 1)">+</button>
+                </div>
+
+                <button class="remover" onclick="remover(${index})">
+                    Remover
+                </button>
+            </div>
         </div>
         `;
     });
 
-    document.getElementById("total").innerText = "Total: R$ " + total.toFixed(2);
+    let totalComEntrega = carrinho.length > 0 ? total + taxaEntrega : 0;
+
+    document.getElementById("qtdItens").innerText = quantidadeItens;
+    document.getElementById("subtotal").innerText = "R$ " + total.toFixed(2);
+    document.getElementById("taxaEntrega").innerText =
+        carrinho.length > 0 ? "R$ " + taxaEntrega.toFixed(2) : "R$ 0,00";
+    document.getElementById("totalFinal").innerText =
+        "R$ " + totalComEntrega.toFixed(2);
+
+    atualizarPedidoMinimo();
+}
+
+function atualizarPedidoMinimo() {
+    let aviso = document.getElementById("aviso");
+    let btnFinalizar = document.getElementById("btnFinalizar");
+
+    if (carrinho.length === 0) {
+        aviso.innerHTML = "Adicione produtos ao carrinho para finalizar.";
+        aviso.className = "aviso erro";
+        btnFinalizar.disabled = true;
+        return;
+    }
+
+    if (total < pedidoMinimo) {
+        let falta = pedidoMinimo - total;
+
+        aviso.innerHTML =
+            "Faltam apenas R$ " +
+            falta.toFixed(2) +
+            " para atingir o pedido mínimo.";
+
+        aviso.className = "aviso erro";
+        btnFinalizar.disabled = true;
+    } else {
+        aviso.innerHTML = "Pedido mínimo atingido. Você já pode finalizar!";
+        aviso.className = "aviso sucesso";
+        btnFinalizar.disabled = false;
+    }
 }
 
 function alterarQtd(index, valor) {
@@ -120,6 +229,10 @@ function alterarQtd(index, valor) {
 
     if (carrinho[index].qtd <= 0) {
         carrinho.splice(index, 1);
+        localStorage.setItem("carrinho", JSON.stringify(carrinho));
+        mostrarMensagem("Produto removido do carrinho.", "sucesso");
+        render();
+        return;
     }
 
     localStorage.setItem("carrinho", JSON.stringify(carrinho));
@@ -127,20 +240,74 @@ function alterarQtd(index, valor) {
 }
 
 function remover(index) {
-    carrinho.splice(index, 1);
-    localStorage.setItem("carrinho", JSON.stringify(carrinho));
-    render();
-}
+    let confirmar = confirm("Deseja remover este produto do carrinho?");
 
-function finalizar() {
-    if (carrinho.length === 0) {
-        alert("Carrinho vazio!");
+    if (!confirmar) {
         return;
     }
 
-    alert("Compra finalizada com sucesso!");
+    carrinho.splice(index, 1);
+
+    localStorage.setItem("carrinho", JSON.stringify(carrinho));
+
+    mostrarMensagem("Produto removido do carrinho.", "sucesso");
+
+    render();
+}
+
+function limparCarrinho() {
+    if (carrinho.length === 0) {
+        mostrarMensagem("O carrinho já está vazio.", "erro");
+        return;
+    }
+
+    let confirmar = confirm("Deseja limpar todo o carrinho?");
+
+    if (!confirmar) {
+        return;
+    }
+
+    carrinho = [];
+
     localStorage.removeItem("carrinho");
-    window.location.href = "produtos.html";
+    localStorage.removeItem("subtotalPedido");
+    localStorage.removeItem("taxaEntrega");
+    localStorage.removeItem("totalPedido");
+
+    mostrarMensagem("Carrinho limpo com sucesso.", "sucesso");
+
+    render();
+}
+
+function irParaFinalizar() {
+    if (!usuarioLogado) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    if (carrinho.length === 0) {
+        mostrarMensagem("Seu carrinho está vazio.", "erro");
+        return;
+    }
+
+    if (total < pedidoMinimo) {
+        mostrarMensagem(
+            "O pedido mínimo é de R$ 30,00 sem contar a taxa de entrega.",
+            "erro"
+        );
+        return;
+    }
+
+    localStorage.setItem("subtotalPedido", total.toFixed(2));
+    localStorage.setItem("taxaEntrega", taxaEntrega.toFixed(2));
+    localStorage.setItem("totalPedido", (total + taxaEntrega).toFixed(2));
+
+    window.location.href = "finalizar.html";
+}
+
+function sair() {
+    localStorage.removeItem("usuarioLogado");
+    window.location.href = "login.html";
 }
 
 render();
