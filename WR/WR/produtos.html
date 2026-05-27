@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Produtos</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="img/logo-wr-aba.png">
+</head>
+
+<body>
+
+<div id="mensagem" class="mensagem"></div>
+
+<div class="topo">
+    <div class="logo-area">
+        <img src="img/logo-wr.png" class="logo" alt="Logo WR">
+        <p id="usuarioNome" class="usuario-nome"></p>
+    </div>
+
+    <div class="botoes-topo">
+        <a href="carrinho.html" id="contadorCarrinho">🛒 Ver Carrinho (0)</a>
+        <a href="historico.html">📦 Meus Pedidos</a>
+        <a href="#" class="sair" onclick="sair()">Sair</a>
+    </div>
+</div>
+
+<h2>Catálogo de Produtos</h2>
+<p class="subtitulo">As melhores bebidas geladas e produtos da região 🍻</p>
+
+<div class="produtos-container">
+
+    <div class="produto">
+        <img src="img/pack-eisenbahn.jpg" alt="Pack Eisenbahn">
+        <h3>Pack cerveja Eisenbahn 355ml 6 un.</h3>
+        <p class="preco">R$ 50,00</p>
+        <button onclick="addCarrinho('Pack cerveja Eisenbahn 355ml 6 un.', 50)">Adicionar ao carrinho</button>
+    </div>
+
+    <div class="produto">
+        <img src="img/heineken-latao.jpg" alt="Caixa Heineken">
+        <h3>Caixa cerveja Heineken 350ml 12 un.</h3>
+        <p class="preco">R$ 65,00</p>
+        <button onclick="addCarrinho('Caixa cerveja Heineken 350ml 12 un.', 65)">Adicionar ao carrinho</button>
+    </div>
+
+    <div class="produto">
+        <img src="img/coca-zero.jpg" alt="Coca-Cola Zero">
+        <h3>Refrigerante Coca-Cola sem açúcar garrafa 2L</h3>
+        <p class="preco">R$ 11,00</p>
+        <button onclick="addCarrinho('Refrigerante Coca-Cola 2L', 11)">Adicionar ao carrinho</button>
+    </div>
+
+    <div class="produto">
+        <img src="img/campari.jpg" alt="Campari">
+        <h3>Aperitivo Bitter Campari garrafa 900ml</h3>
+        <p class="preco">R$ 90,00</p>
+        <button onclick="addCarrinho('Campari 900ml', 90)">Adicionar ao carrinho</button>
+    </div>
+
+    <div class="produto">
+        <img src="img/amstel.jpg" alt="Amstel">
+        <h3>Caixa cerveja Amstel 269ml 12 un.</h3>
+        <p class="preco">R$ 40,00</p>
+        <button onclick="addCarrinho('Amstel 12un', 40)">Adicionar ao carrinho</button>
+    </div>
+
+    <div class="produto">
+        <img src="img/bombom.jpg" alt="Bombom">
+        <h3>Caixa de Bombom Garoto 250g</h3>
+        <p class="preco">R$ 19,00</p>
+        <button onclick="addCarrinho('Caixa de Bombom Garoto 250g', 19)">Adicionar ao carrinho</button>
+    </div>
+
+    <div class="produto">
+        <img src="img/sprite.jpg" alt="Sprite">
+        <h3>Refrigerante Sprite retornável 2L</h3>
+        <p class="preco">R$ 9,00</p>
+        <button onclick="addCarrinho('Sprite 2L', 9)">Adicionar ao carrinho</button>
+    </div>
+
+    <div class="produto">
+        <img src="img/brahma.jpg" alt="Brahma">
+        <h3>Caixa cerveja Brahma Chopp 269ml 15 un.</h3>
+        <p class="preco">R$ 44,00</p>
+        <button onclick="addCarrinho('Brahma 15un', 44)">Adicionar ao carrinho</button>
+    </div>
+
+</div>
+
+<footer>
+    <h3>WR Conveniência</h3>
+
+    <p>
+        A WR Conveniência oferece bebidas geladas, produtos de qualidade
+        e o melhor atendimento da região. Trabalhamos com variedade,
+        praticidade e preços acessíveis para garantir a melhor experiência
+        aos nossos clientes.
+    </p>
+
+    <div class="direitos">
+        © 2026 WR Conveniência - Todos os direitos reservados.
+    </div>
+</footer>
+
+<script>
+function verificarLogin() {
+    let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+    if (!usuarioLogado) {
+        window.location.href = "login.html";
+    }
+}
+
+function mostrarUsuario() {
+    let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+    if (usuarioLogado) {
+        document.getElementById("usuarioNome").innerText =
+            "Olá, " + usuarioLogado.nome + " 👋";
+    }
+}
+
+function mostrarMensagem(texto) {
+    let mensagem = document.getElementById("mensagem");
+
+    mensagem.innerText = texto;
+    mensagem.className = "mensagem sucesso";
+
+    setTimeout(() => {
+        mensagem.className = "mensagem";
+    }, 2200);
+}
+
+function atualizarContadorCarrinho() {
+    let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+    let totalItens = 0;
+
+    carrinho.forEach(item => {
+        totalItens += Number(item.qtd);
+    });
+
+    document.getElementById("contadorCarrinho").innerText =
+        "🛒 Ver Carrinho (" + totalItens + ")";
+}
+
+function addCarrinho(nome, preco) {
+    let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+
+    let itemExistente = carrinho.find(p => p.nome === nome);
+
+    if (itemExistente) {
+        itemExistente.qtd = Number(itemExistente.qtd) + 1;
+    } else {
+        carrinho.push({
+            nome: nome,
+            preco: Number(preco),
+            qtd: 1
+        });
+    }
+
+    localStorage.setItem("carrinho", JSON.stringify(carrinho));
+
+    atualizarContadorCarrinho();
+    mostrarMensagem("✅ Produto adicionado ao carrinho!");
+}
+
+function sair() {
+    localStorage.removeItem("usuarioLogado");
+    window.location.href = "login.html";
+}
+
+verificarLogin();
+mostrarUsuario();
+atualizarContadorCarrinho();
+</script>
+
+</body>
+</html>

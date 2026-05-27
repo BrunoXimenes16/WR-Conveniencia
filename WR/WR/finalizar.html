@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Finalizar Pedido</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="img/logo-wr-aba.png">
+</head>
+
+<body>
+
+    <div class="topo">
+        <img src="img/logo-wr.png" class="logo" alt="Logo WR">
+    </div>
+    
+    <div class="container">
+        <div class="card">
+    
+            <h2>Finalizar Pedido</h2>
+            <p class="subtitulo">Preencha os dados para confirmar sua entrega 🚚</p>
+    
+            <div class="resumo">
+                <h3>Resumo do Pedido</h3>
+    
+                <div class="linha-resumo">
+                    <span>Subtotal:</span>
+                    <strong id="subtotal">R$ 0,00</strong>
+                </div>
+    
+                <div class="linha-resumo">
+                    <span>Taxa de entrega:</span>
+                    <strong id="taxaEntrega">R$ 0,00</strong>
+                </div>
+    
+                <div class="linha-resumo total-final">
+                    <span>Total:</span>
+                    <strong id="totalPedido">R$ 0,00</strong>
+                </div>
+            </div>
+    
+            <label for="endereco">Endereço de entrega</label>
+            <input id="endereco" placeholder="Ex: Rua 10, casa 25, Guará">
+    
+            <label for="referencia">Ponto de referência</label>
+            <input id="referencia" placeholder="Ex: Próximo ao mercado">
+    
+            <label for="observacao">Observação do pedido</label>
+            <textarea id="observacao" placeholder="Ex: Troco para R$ 100,00 ou entregar na portaria"></textarea>
+    
+            <label for="pagamento">Forma de pagamento</label>
+            <select id="pagamento">
+                <option value="">Escolha forma de pagamento</option>
+                <option value="Pix na entrega">Pix na entrega</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartão na entrega">Cartão na entrega</option>
+            </select>
+    
+            <div id="mensagem" class="mensagem"></div>
+    
+            <button onclick="finalizar()">Confirmar Pedido</button>
+    
+            <a href="carrinho.html" class="voltar">
+                ← Voltar ao carrinho
+            </a>
+    
+        </div>
+    </div>
+    
+    <footer>
+        <h3>WR Conveniência</h3>
+    
+        <p>
+            A WR Conveniência oferece bebidas geladas, produtos de qualidade
+            e o melhor atendimento da região. Trabalhamos com variedade,
+            praticidade e preços acessíveis para garantir a melhor experiência
+            aos nossos clientes.
+        </p>
+    
+        <div class="direitos">
+            © 2026 WR Conveniência - Todos os direitos reservados.
+        </div>
+    </footer>
+    
+    <script>
+    function verificarLogin() {
+        let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+    
+        if (!usuarioLogado) {
+            window.location.href = "login.html";
+            return null;
+        }
+    
+        return usuarioLogado;
+    }
+    
+    let usuarioLogado = verificarLogin();
+    
+    let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+    
+    let subtotalSalvo = Number(localStorage.getItem("subtotalPedido")) || 0;
+    let taxaEntregaSalva = Number(localStorage.getItem("taxaEntrega")) || 3;
+    let totalPedidoSalvo = Number(localStorage.getItem("totalPedido")) || 0;
+    
+    let subtotalCalculado = 0;
+    
+    carrinho.forEach(item => {
+        subtotalCalculado += Number(item.preco) * Number(item.qtd);
+    });
+    
+    let subtotal = subtotalSalvo > 0 ? subtotalSalvo : subtotalCalculado;
+    let taxaEntrega = carrinho.length > 0 ? taxaEntregaSalva : 0;
+    let totalPedido = totalPedidoSalvo > 0 ? totalPedidoSalvo : subtotal + taxaEntrega;
+    
+    document.getElementById("subtotal").innerText = "R$ " + subtotal.toFixed(2);
+    document.getElementById("taxaEntrega").innerText = "R$ " + taxaEntrega.toFixed(2);
+    document.getElementById("totalPedido").innerText = "R$ " + totalPedido.toFixed(2);
+    
+    if (usuarioLogado && usuarioLogado.endereco) {
+        document.getElementById("endereco").value = usuarioLogado.endereco;
+    }
+    
+    function mostrarMensagem(texto, tipo) {
+        let mensagem = document.getElementById("mensagem");
+    
+        mensagem.innerHTML = texto;
+        mensagem.className = "mensagem " + tipo;
+    }
+    
+    function finalizar() {
+        let endereco = document.getElementById("endereco").value.trim();
+        let referencia = document.getElementById("referencia").value.trim();
+        let observacao = document.getElementById("observacao").value.trim();
+        let pagamento = document.getElementById("pagamento").value;
+    
+        if (!usuarioLogado) {
+            mostrarMensagem("Você precisa estar logado para finalizar o pedido.", "erro");
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
+            return;
+        }
+    
+        if (carrinho.length === 0) {
+            mostrarMensagem("Seu carrinho está vazio.", "erro");
+            return;
+        }
+    
+        if (subtotal < 30) {
+            mostrarMensagem("O pedido mínimo é de R$ 30,00 sem contar a taxa de entrega.", "erro");
+            return;
+        }
+    
+        if (endereco === "") {
+            mostrarMensagem("Informe o endereço de entrega.", "erro");
+            return;
+        }
+    
+        if (pagamento === "") {
+            mostrarMensagem("Escolha uma forma de pagamento.", "erro");
+            return;
+        }
+    
+        let historicoPedidos = JSON.parse(localStorage.getItem("historicoPedidos")) || [];
+    
+        let pedido = {
+            numero: historicoPedidos.length + 1,
+            data: new Date().toLocaleString("pt-BR"),
+            usuarioNome: usuarioLogado.nome,
+            usuarioEmail: usuarioLogado.email,
+            endereco: endereco,
+            referencia: referencia,
+            observacao: observacao,
+            pagamento: pagamento,
+            subtotal: subtotal,
+            taxaEntrega: taxaEntrega,
+            total: totalPedido,
+            itens: carrinho,
+            status: "Pedido em preparo"
+        };
+    
+        historicoPedidos.push(pedido);
+    
+        localStorage.setItem("historicoPedidos", JSON.stringify(historicoPedidos));
+        localStorage.setItem("pedidoAtual", JSON.stringify(pedido));
+    
+        mostrarMensagem("Pedido confirmado com sucesso! Redirecionando...", "sucesso");
+    
+        localStorage.removeItem("carrinho");
+        localStorage.removeItem("subtotalPedido");
+        localStorage.removeItem("taxaEntrega");
+        localStorage.removeItem("totalPedido");
+    
+        setTimeout(() => {
+            window.location.href = "pedidos.html";
+        }, 2000);
+    }
+    </script>
+    
+    </body>
+    </html>

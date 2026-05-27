@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Cadastro</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="area-cadastro">
+
+    <div class="container">
+
+        <img src="img/logo-wr.png" class="logo" alt="Logo WR">
+
+        <h2>Cadastro</h2>
+        <p class="subtitulo">Crie sua conta para comprar na WR Conveniência</p>
+
+        <form onsubmit="return validarCadastro()">
+
+            <div class="campo">
+                <label for="nome">Nome completo</label>
+                <input id="nome" placeholder="Digite seu nome completo">
+            </div>
+
+            <div class="campo">
+                <label for="cpf">CPF</label>
+                <input id="cpf" placeholder="Digite seu CPF">
+            </div>
+
+            <div class="campo">
+                <label for="telefone">Telefone</label>
+                <input id="telefone" placeholder="Digite seu telefone">
+            </div>
+
+            <div class="campo">
+                <label for="email">E-mail</label>
+                <input id="email" type="email" placeholder="Digite seu e-mail">
+            </div>
+
+            <div class="campo">
+                <label for="endereco">Endereço</label>
+                <input id="endereco" placeholder="Digite seu endereço">
+            </div>
+
+            <div class="campo">
+                <label for="senha">Senha</label>
+                <input id="senha" type="password" placeholder="Crie uma senha">
+            </div>
+
+            <div class="campo">
+                <label for="confirmar">Confirmar senha</label>
+                <input id="confirmar" type="password" placeholder="Confirme sua senha">
+            </div>
+
+            <button type="submit">Cadastrar</button>
+
+        </form>
+
+        <div id="mensagem" class="mensagem"></div>
+
+        <p class="link-login">
+            Já tem uma conta?
+            <a href="login.html">Fazer login</a>
+        </p>
+
+    </div>
+
+</div>
+
+<footer>
+    <h3>WR Conveniência</h3>
+
+    <p>
+        A WR Conveniência oferece bebidas geladas, produtos de qualidade
+        e o melhor atendimento da região. Trabalhamos com variedade,
+        praticidade e preços acessíveis para garantir a melhor experiência
+        aos nossos clientes.
+    </p>
+
+    <div class="direitos">
+        © 2026 WR Conveniência - Todos os direitos reservados.
+    </div>
+</footer>
+
+<script>
+function validarCadastro() {
+    let nome = document.getElementById("nome").value.trim();
+    let cpf = document.getElementById("cpf").value.trim();
+    let telefone = document.getElementById("telefone").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let endereco = document.getElementById("endereco").value.trim();
+    let senha = document.getElementById("senha").value;
+    let confirmar = document.getElementById("confirmar").value;
+    let msg = document.getElementById("mensagem");
+
+    if (
+        nome === "" ||
+        cpf === "" ||
+        telefone === "" ||
+        email === "" ||
+        endereco === "" ||
+        senha === "" ||
+        confirmar === ""
+    ) {
+        msg.innerHTML = "❌ Preencha todos os campos.";
+        msg.className = "mensagem erro";
+        return false;
+    }
+
+    if (senha.length < 4) {
+        msg.innerHTML = "❌ A senha deve ter pelo menos 4 caracteres.";
+        msg.className = "mensagem erro";
+        return false;
+    }
+
+    if (senha !== confirmar) {
+        msg.innerHTML = "❌ As senhas não coincidem.";
+        msg.className = "mensagem erro";
+        return false;
+    }
+
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    let usuarioExistente = usuarios.find(usuario => usuario.email === email);
+
+    if (usuarioExistente) {
+        msg.innerHTML = "❌ Este e-mail já está cadastrado.";
+        msg.className = "mensagem erro";
+        return false;
+    }
+
+    let novoUsuario = {
+        nome: nome,
+        cpf: cpf,
+        telefone: telefone,
+        email: email,
+        endereco: endereco,
+        senha: senha
+    };
+
+    usuarios.push(novoUsuario);
+
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+    msg.innerHTML = "✅ Cadastro realizado com sucesso! Redirecionando para o login...";
+    msg.className = "mensagem sucesso";
+
+    document.querySelector("form").reset();
+
+    setTimeout(() => {
+        window.location.href = "login.html";
+    }, 2000);
+
+    return false;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Meus Pedidos</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="topo">
+    <div class="logo-area">
+        <img src="img/logo-wr.png" class="logo" alt="Logo WR">
+        <p id="usuarioNome" class="usuario-nome"></p>
+    </div>
+
+    <div class="botoes-topo">
+        <a href="produtos.html">🏠 Loja</a>
+        <a href="carrinho.html" id="contadorCarrinho">🛒 Carrinho (0)</a>
+        <a href="#" class="sair" onclick="sair()">Sair</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <h2>Meus Pedidos</h2>
+    <p class="subtitulo">Acompanhe o histórico das suas compras 📦</p>
+
+    <div id="listaPedidos"></div>
+
+    <a href="produtos.html" class="voltar">
+        ← Voltar para loja
+    </a>
+
+</div>
+
+<footer>
+    <h3>WR Conveniência</h3>
+
+    <p>
+        A WR Conveniência oferece bebidas geladas, produtos de qualidade
+        e o melhor atendimento da região. Trabalhamos com variedade,
+        praticidade e preços acessíveis para garantir a melhor experiência
+        aos nossos clientes.
+    </p>
+
+    <div class="direitos">
+        © 2026 WR Conveniência - Todos os direitos reservados.
+    </div>
+</footer>
+
+<script>
+function verificarLogin() {
+    let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+    if (!usuarioLogado) {
+        window.location.href = "login.html";
+    }
+}
+
+function mostrarUsuario() {
+    let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+    if (usuarioLogado) {
+        document.getElementById("usuarioNome").innerText =
+            "Olá, " + usuarioLogado.nome + " 👋";
+    }
+}
+
+function atualizarContadorCarrinho() {
+    let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+    let totalItens = 0;
+
+    carrinho.forEach(item => {
+        totalItens += Number(item.qtd);
+    });
+
+    document.getElementById("contadorCarrinho").innerText =
+        "🛒 Carrinho (" + totalItens + ")";
+}
+
+function carregarHistorico() {
+    let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+    let historicoPedidos = JSON.parse(localStorage.getItem("historicoPedidos")) || [];
+    let lista = document.getElementById("listaPedidos");
+
+    let pedidosDoUsuario = historicoPedidos.filter(pedido =>
+        pedido.usuarioEmail === usuarioLogado.email || !pedido.usuarioEmail
+    );
+
+    if (pedidosDoUsuario.length === 0) {
+        lista.innerHTML = `
+            <div class="vazio">
+                Você ainda não possui pedidos no histórico.
+            </div>
+        `;
+        return;
+    }
+
+    pedidosDoUsuario.reverse().forEach(pedido => {
+        let itensHtml = "";
+
+        pedido.itens.forEach(item => {
+            let subtotalItem = Number(item.preco) * Number(item.qtd);
+
+            itensHtml += `
+                <div class="item">
+                    <span>${item.qtd}x ${item.nome}</span>
+                    <strong>R$ ${subtotalItem.toFixed(2)}</strong>
+                </div>
+            `;
+        });
+
+        lista.innerHTML += `
+            <div class="pedido">
+                <h3>Pedido #${pedido.numero || "000"}</h3>
+
+                <p><strong>Data:</strong> ${pedido.data || "Não informada"}</p>
+                <p><strong>Endereço:</strong> ${pedido.endereco || "Não informado"}</p>
+                <p><strong>Pagamento:</strong> ${pedido.pagamento || "Não informado"}</p>
+                <p><strong>Status:</strong> <span class="status">${pedido.status || "Pedido em preparo"}</span></p>
+
+                <div class="itens">
+                    <h4>Itens do pedido</h4>
+                    ${itensHtml}
+                </div>
+
+                <div class="total">
+                    <p>Subtotal: <strong>R$ ${Number(pedido.subtotal || 0).toFixed(2)}</strong></p>
+                    <p>Taxa de entrega: <strong>R$ ${Number(pedido.taxaEntrega || 0).toFixed(2)}</strong></p>
+                    <p>Total: <strong>R$ ${Number(pedido.total || 0).toFixed(2)}</strong></p>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function sair() {
+    localStorage.removeItem("usuarioLogado");
+    window.location.href = "login.html";
+}
+
+verificarLogin();
+mostrarUsuario();
+atualizarContadorCarrinho();
+carregarHistorico();
+</script>
+
+</body>
+</html>

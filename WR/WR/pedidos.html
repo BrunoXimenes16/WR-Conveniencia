@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Pedido Confirmado</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="img/logo-wr-aba.png">
+</head>
+
+<body>
+
+<div class="topo">
+    <img src="img/logo-wr.png" class="logo" alt="Logo WR">
+</div>
+
+<div class="container">
+    <div class="card">
+
+        <h2>✅ Pedido Confirmado!</h2>
+        <p class="subtitulo">Seu pedido foi recebido e está sendo preparado.</p>
+
+        <div class="resumo">
+            <h3>Detalhes do Pedido</h3>
+
+            <div class="linha-resumo">
+                <span>Endereço:</span>
+                <strong id="endereco">Não informado</strong>
+            </div>
+
+            <div class="linha-resumo">
+                <span>Pagamento:</span>
+                <strong id="pagamento">Não informado</strong>
+            </div>
+
+            <div class="linha-resumo">
+                <span>Subtotal:</span>
+                <strong id="subtotal">R$ 0,00</strong>
+            </div>
+
+            <div class="linha-resumo">
+                <span>Taxa:</span>
+                <strong id="taxa">R$ 0,00</strong>
+            </div>
+
+            <div class="linha-resumo total">
+                <span>Total:</span>
+                <strong id="total">R$ 0,00</strong>
+            </div>
+        </div>
+
+        <div class="barra">
+            <div id="progresso" class="progresso"></div>
+        </div>
+
+        <div class="status">
+            <div id="s1" class="status-item">
+                <div class="icone">📦</div>
+                <div>
+                    <strong>Pedido em preparo</strong><br>
+                    <small>Estamos separando seus produtos.</small>
+                </div>
+            </div>
+
+            <div id="s2" class="status-item">
+                <div class="icone">🚚</div>
+                <div>
+                    <strong>Saiu para entrega</strong><br>
+                    <small>Seu pedido já está a caminho.</small>
+                </div>
+            </div>
+
+            <div id="s3" class="status-item">
+                <div class="icone">🏁</div>
+                <div>
+                    <strong>Entregue</strong><br>
+                    <small>Pedido finalizado com sucesso.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="tempo">
+            <strong>Tempo estimado:</strong> 30 - 50 minutos
+        </div>
+
+        <button onclick="window.location.href='produtos.html'">
+            Voltar para loja
+        </button>
+
+        <button class="secundario" onclick="limparPedido()">
+            Finalizar acompanhamento
+        </button>
+
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<footer>
+    <h3>WR Conveniência</h3>
+
+    <p>
+        A WR Conveniência oferece bebidas geladas, produtos de qualidade
+        e o melhor atendimento da região. Trabalhamos com variedade,
+        praticidade e preços acessíveis para garantir a melhor experiência
+        aos nossos clientes.
+    </p>
+
+    <div class="direitos">
+        © 2026 WR Conveniência - Todos os direitos reservados.
+    </div>
+</footer>
+
+<script>
+let pedido = JSON.parse(localStorage.getItem("pedidoAtual")) || null;
+let etapa = 0;
+
+function carregarPedido() {
+    if (!pedido) {
+        document.getElementById("endereco").innerText = "Pedido não encontrado";
+        document.getElementById("pagamento").innerText = "Não informado";
+        document.getElementById("subtotal").innerText = "R$ 0,00";
+        document.getElementById("taxa").innerText = "R$ 0,00";
+        document.getElementById("total").innerText = "R$ 0,00";
+        return;
+    }
+
+    document.getElementById("endereco").innerText = pedido.endereco || "Não informado";
+    document.getElementById("pagamento").innerText = pedido.pagamento || "Não informado";
+    document.getElementById("subtotal").innerText = "R$ " + Number(pedido.subtotal).toFixed(2);
+    document.getElementById("taxa").innerText = "R$ " + Number(pedido.taxaEntrega).toFixed(2);
+    document.getElementById("total").innerText = "R$ " + Number(pedido.total).toFixed(2);
+}
+
+function mostrarToast(texto) {
+    let toast = document.getElementById("toast");
+
+    toast.innerText = texto;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+}
+
+function atualizarStatus() {
+    document.getElementById("s1").className = "status-item";
+    document.getElementById("s2").className = "status-item";
+    document.getElementById("s3").className = "status-item";
+
+    if (etapa === 0) {
+        document.getElementById("s1").classList.add("ativo");
+        document.getElementById("progresso").style.width = "33%";
+        mostrarToast("📦 Pedido em preparo");
+    }
+
+    if (etapa === 1) {
+        document.getElementById("s1").classList.add("finalizado");
+        document.getElementById("s2").classList.add("ativo");
+        document.getElementById("progresso").style.width = "66%";
+        mostrarToast("🚚 Saiu para entrega");
+    }
+
+    if (etapa === 2) {
+        document.getElementById("s1").classList.add("finalizado");
+        document.getElementById("s2").classList.add("finalizado");
+        document.getElementById("s3").classList.add("finalizado");
+        document.getElementById("progresso").style.width = "100%";
+        mostrarToast("🏁 Pedido entregue!");
+    }
+
+    etapa++;
+
+    if (etapa > 2) {
+        etapa = 2;
+    }
+}
+
+function limparPedido() {
+    localStorage.removeItem("pedidoAtual");
+    alert("Acompanhamento finalizado.");
+    window.location.href = "produtos.html";
+}
+
+carregarPedido();
+atualizarStatus();
+
+setTimeout(atualizarStatus, 4000);
+setTimeout(atualizarStatus, 8000);
+</script>
+
+</body>
+</html>
